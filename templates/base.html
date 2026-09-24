@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="sw" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="description" content="PangaSalama -- tafuta chumba salama karibu na wewe. Tafuta kwa eneo, bei na umbali; admin anakuunganisha na mwenye nyumba kwa usalama.">
+    <meta property="og:title" content="PangaSalama | Tafuta. Chagua. Kaa.">
+    <meta property="og:description" content="Tafuta chumba salama karibu na wewe -- vyumba halisi, admin anayekuunganisha kwa usalama.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <title>{% block title %}PangaSalama | Tafuta Chumba{% endblock %}</title>
+    <!--
+        CSS hii (static/styles.css) imejengwa mahususi kwa classes
+        zinazotumika kwenye mradi huu tu -- badala ya Tailwind CDN (ambayo
+        inapakua na ku-compile kwenye browser ya mtumiaji kila mara, jambo
+        zito kwa data/CPU ya simu). Font ni ya default ya mfumo (system
+        font) badala ya Google Fonts -- request moja pungufu kwa kila
+        ukurasa. Angalia README kwa maelezo zaidi.
+    -->
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+    <style>
+        .toast { animation: toast-in 0.25s ease-out; }
+        @keyframes toast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+    {% include "_icons_sprite.html" %}
+
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="{{ url_for('main.home') }}" class="flex items-center gap-2 font-bold text-brand-teal-dark text-lg">
+                {{ icon('house-chimney', 'text-brand-amber') }} PangaSalama
+            </a>
+            <div class="flex items-center gap-3 text-sm">
+                <!--
+                    Kitufe cha menu (kabla kilikuwa kinajificha kwenye skrini
+                    kubwa -- "sm:hidden" -- na badala yake links za nav
+                    zilionekana mstari mmoja. Hilo lilikuwa likileta tatizo
+                    kwenye baadhi ya mipangilio ("Desktop mode"). Sasa kitufe
+                    hiki kinaonekana KILA WAKATI (simu na desktop), na ndicho
+                    njia pekee ya nav -- rahisi zaidi na thabiti zaidi.
+                -->
+                <button type="button" id="mobile-menu-btn" class="relative text-slate-700 text-lg" aria-label="Menu">
+                    {{ icon('bars') }}
+                    {% if current_user and unread_notifications_count %}
+                    <span class="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center">{{ unread_notifications_count if unread_notifications_count < 10 else '9+' }}</span>
+                    {% endif %}
+                </button>
+            </div>
+        </div>
+
+        <!-- Dropdown ya nav (inatumika kwenye simu NA desktop) -->
+        <div id="mobile-menu" class="hidden border-t border-slate-100 bg-white">
+            <div class="px-4 py-3 space-y-1 text-sm">
+                <a href="{{ url_for('main.home') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('house', 'w-5 text-slate-400') }} Mwanzo</a>
+                <a href="{{ url_for('main.browse') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('magnifying-glass', 'w-5 text-slate-400') }} Tafuta Chumba</a>
+                {% if current_user %}
+                    {% if current_user.role == 'owner' %}
+                        <a href="{{ url_for('room.my_rooms') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('gauge', 'w-5 text-slate-400') }} Dashibodi Yangu</a>
+                        <a href="{{ url_for('room.new_room') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('plus', 'w-5 text-slate-400') }} Weka Chumba</a>
+                    {% elif current_user.role == 'client' %}
+                        <a href="{{ url_for('request.my_requests') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('list-check', 'w-5 text-slate-400') }} Maombi Yangu</a>
+                        <a href="{{ url_for('request.custom_request') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('comment-dots', 'w-5 text-slate-400') }} Omba Chumba Maalum</a>
+                    {% elif current_user.role == 'admin' %}
+                        <a href="{{ url_for('admin.dashboard') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('gauge', 'w-5 text-slate-400') }} Dashibodi ya Admin</a>
+                        <a href="{{ url_for('admin.requests_list') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('list-check', 'w-5 text-slate-400') }} Maombi Yote</a>
+                        <a href="{{ url_for('admin.rooms_list') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('house-flag', 'w-5 text-slate-400') }} Vyumba Vyote</a>
+                        <a href="{{ url_for('room.new_room') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('plus', 'w-5 text-slate-400') }} Weka Chumba (kwa Mwenye Nyumba)</a>
+                    {% endif %}
+                    <a href="{{ url_for('notification.my_notifications') }}" class="flex items-center gap-3 py-2.5 text-slate-700">
+                        {{ icon('bell', 'w-5 text-slate-400') }} Arifa
+                        {% if unread_notifications_count %}<span class="bg-rose-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center ml-auto">{{ unread_notifications_count if unread_notifications_count < 10 else '9+' }}</span>{% endif %}
+                    </a>
+                    <div class="border-t border-slate-100 my-1"></div>
+                    <div class="flex items-center gap-3 py-2 text-slate-400 text-xs">{{ icon('user', 'w-5') }} {{ current_user.full_name }}</div>
+                    <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 py-2.5 text-red-600">{{ icon('right-from-bracket', 'w-5') }} Toka</a>
+                {% else %}
+                    <div class="border-t border-slate-100 my-1"></div>
+                    <a href="{{ url_for('auth.login') }}" class="flex items-center gap-3 py-2.5 text-slate-700">{{ icon('right-to-bracket', 'w-5 text-slate-400') }} Ingia</a>
+                    <a href="{{ url_for('auth.register') }}" class="flex items-center gap-3 py-2.5 text-brand-teal-dark font-semibold">{{ icon('user-plus', 'w-5') }} Jisajili</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div id="toast-container" class="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-sm px-4 space-y-2 pointer-events-none"></div>
+
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-brand-ink text-slate-400 mt-12">
+        <div class="max-w-6xl mx-auto px-4 py-8 text-center text-xs">
+            <p class="text-slate-300 font-semibold mb-1">🏠 PangaSalama</p>
+            <p>Tafuta. Chagua. Kaa.</p>
+            <p class="mt-2">&copy; 2026 PangaSalama &mdash; Tunakuunganisha na chumba sahihi karibu yako.</p>
+        </div>
+    </footer>
+
+    <script>
+    (function () {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+        function iconSvg(name, cls) {
+            return `<svg class="icon ${cls || ''}" aria-hidden="true"><use href="#icon-${name}"></use></svg>`;
+        }
+
+        // --- Menu ya simu (mobile) ---
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+        if (menuBtn && menu) {
+            menuBtn.addEventListener('click', function () {
+                const isOpen = menu.classList.toggle('hidden') === false;
+                const use = menuBtn.querySelector('.icon use');
+                if (use) {
+                    use.setAttribute('href', '#icon-' + (isOpen ? 'xmark' : 'bars'));
+                }
+            });
+        }
+
+        // --- Toast notifications (badala ya flash box za kudumu) ---
+        const flashMessages = {{ get_flashed_messages(with_categories=true) | tojson }};
+        const toastContainer = document.getElementById('toast-container');
+
+        function showToast(message, category) {
+            const isSuccess = category === 'success';
+            const toast = document.createElement('div');
+            toast.className = `toast pointer-events-auto flex items-start gap-2 p-3 rounded-lg text-sm border shadow-md ${isSuccess ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-rose-50 border-rose-200 text-rose-800'}`;
+            toast.innerHTML = `
+                ${iconSvg(isSuccess ? 'circle-check' : 'circle-exclamation', 'mt-0.5')}
+                <span class="flex-1">${message}</span>
+                <button type="button" class="text-slate-400 hover:text-slate-600">&times;</button>
+            `;
+            toast.querySelector('button').addEventListener('click', function () { toast.remove(); });
+            toastContainer.appendChild(toast);
+            setTimeout(function () { toast.remove(); }, 6000);
+        }
+
+        flashMessages.forEach(function (pair) {
+            showToast(pair[1], pair[0]);
+        });
+
+    })();
+    </script>
+</body>
+</html>

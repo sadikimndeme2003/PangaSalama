@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Maombi | Admin{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <h1 class="text-xl font-bold text-slate-800 mb-6">Maombi Yote</h1>
+
+    {% if not requests %}
+        <p class="text-slate-500 text-sm">Hakuna maombi bado.</p>
+    {% else %}
+        <div class="space-y-4">
+            {% for r in requests %}
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3">
+                    <div>
+                        <span class="text-[11px] uppercase tracking-wide text-slate-400">
+                            {{ 'Ombi la Chumba' if r.request_type == 'room_request' else 'Ombi Maalum' }}
+                        </span>
+                        {% if r.rooms %}
+                            <h3 class="font-semibold text-slate-800">{{ r.rooms.title }}</h3>
+                            <p class="text-xs text-slate-500">
+                                {{ r.rooms.area }} &middot; {{ r.rooms.room_type }} &middot; TZS {{ "{:,.0f}".format(r.rooms.price) }}/mwezi
+                                {% if r.rooms.distance_to_college %} &middot; {{ r.rooms.distance_to_college }} dakika kutoka chuo{% endif %}
+                            </p>
+                        {% else %}
+                            <h3 class="font-semibold text-slate-800">Ombi Maalum: {{ r.desired_area }}</h3>
+                            <p class="text-xs text-slate-500">
+                                {% if r.desired_room_type %}{{ r.desired_room_type }} &middot; {% endif %}
+                                {% if r.desired_price %}TZS {{ "{:,.0f}".format(r.desired_price) }}/mwezi &middot; {% endif %}
+                                {% if r.desired_distance %}{{ r.desired_distance }} dakika kutoka chuo{% endif %}
+                            </p>
+                        {% endif %}
+
+                        <div class="mt-2 pt-2 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400">Aliyeomba (Mteja)</p>
+                                {% if r.client_info %}
+                                    <p class="text-xs text-slate-600">{{ r.client_info.full_name }}</p>
+                                    <p class="text-xs text-slate-500">{{ r.client_info.phone }}</p>
+                                {% else %}
+                                    <p class="text-xs text-slate-400">Haipatikani</p>
+                                {% endif %}
+                            </div>
+                            {% if r.rooms %}
+                            <div>
+                                <p class="text-[10px] uppercase tracking-wide text-slate-400">Mwenye Nyumba</p>
+                                <p class="text-xs text-slate-600">{{ r.rooms.owner_name or "Haijaandikwa" }}</p>
+                                <p class="text-xs text-slate-500">{{ r.rooms.contact_phone }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if r.notes %}
+                            <p class="text-xs text-slate-500 mt-2 italic">"{{ r.notes }}"</p>
+                        {% endif %}
+                    </div>
+                    <span class="text-xs px-3 py-1 rounded-full font-medium self-start
+                        {% if r.status == 'pending' %}bg-amber-100 text-amber-700
+                        {% elif r.status == 'connected' %}bg-blue-100 text-blue-700
+                        {% elif r.status == 'booked' %}bg-emerald-100 text-emerald-700
+                        {% else %}bg-slate-100 text-slate-500{% endif %}">
+                        {{ r.status }}
+                    </span>
+                </div>
+
+                <form method="post" action="{{ url_for('admin.update_status', request_id=r.id) }}"
+                      class="flex flex-col sm:flex-row gap-2 mt-3 border-t border-slate-100 pt-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <select name="status" class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1">
+                        <option value="pending" {% if r.status == 'pending' %}selected{% endif %}>Inasubiri</option>
+                        <option value="connected" {% if r.status == 'connected' %}selected{% endif %}>Nimeunganisha / Malipo Yanaendelea</option>
+                        <option value="booked" {% if r.status == 'booked' %}selected{% endif %}>Imekamilika (booked)</option>
+                        <option value="cancelled" {% if r.status == 'cancelled' %}selected{% endif %}>Imefutwa</option>
+                    </select>
+                    <input type="text" name="admin_notes" placeholder="Maelezo ya ndani (hiari)"
+                           class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1">
+                    <button type="submit" class="bg-brand-teal hover:bg-brand-teal-dark text-white rounded-lg px-4 py-2 text-sm font-semibold">
+                        Sasisha
+                    </button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

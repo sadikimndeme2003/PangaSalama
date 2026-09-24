@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Arifa | PangaSalama{% endblock %}
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-xl font-bold text-slate-800">{{ icon('bell') }} Arifa Zangu</h1>
+        {% if notifications %}
+        <form method="post" action="{{ url_for('notification.delete_read_notifications') }}"
+              onsubmit="return confirm('Futa arifa zote zilizosomwa?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="text-xs text-slate-500 hover:text-rose-600 font-medium">
+                {{ icon('xmark') }} Futa Zilizosomwa Zote
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    {% if not notifications %}
+        <div class="text-center py-16">
+            {{ icon('bell-slash', 'text-4xl text-slate-300 mb-3') }}
+            <p class="text-slate-500">Hakuna arifa bado.</p>
+        </div>
+    {% else %}
+        <div class="space-y-2">
+            {% for n in notifications %}
+                <div class="bg-white border border-slate-200 rounded-xl p-4 flex items-start gap-3 {% if not n.is_read %}border-l-4 border-l-brand-amber{% endif %}">
+                    <div class="flex-1 min-w-0">
+                        {% if n.link %}
+                            <a href="{{ n.link }}" class="block">
+                                <p class="text-sm text-slate-700">{{ n.message }}</p>
+                            </a>
+                        {% else %}
+                            <p class="text-sm text-slate-700">{{ n.message }}</p>
+                        {% endif %}
+                        <p class="text-[11px] text-slate-400 mt-1">{{ n.created_at[:16].replace('T', ' ') }}</p>
+                    </div>
+                    <form method="post" action="{{ url_for('notification.delete_notification', notif_id=n.id) }}" class="shrink-0">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="text-slate-300 hover:text-rose-600 w-7 h-7 flex items-center justify-center" aria-label="Futa arifa">
+                            {{ icon('xmark') }}
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

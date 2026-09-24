@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Vyumba Vyote | Admin{% endblock %}
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 py-8">
+    <h1 class="text-xl font-bold text-slate-800 mb-4">Vyumba Vyote</h1>
+
+    <div class="flex flex-wrap gap-2 mb-6 text-sm">
+        <a href="{{ url_for('admin.rooms_list') }}"
+           class="px-3 py-1.5 rounded-full {% if not status_filter %}bg-brand-teal text-white{% else %}bg-slate-100 text-slate-600{% endif %}">Vyote</a>
+        <a href="{{ url_for('admin.rooms_list', status='available') }}"
+           class="px-3 py-1.5 rounded-full {% if status_filter == 'available' %}bg-emerald-600 text-white{% else %}bg-emerald-50 text-emerald-700{% endif %}">Vinavyopatikana</a>
+        <a href="{{ url_for('admin.rooms_list', status='requested') }}"
+           class="px-3 py-1.5 rounded-full {% if status_filter == 'requested' %}bg-amber-600 text-white{% else %}bg-amber-50 text-amber-700{% endif %}">Vimeombwa</a>
+        <a href="{{ url_for('admin.rooms_list', status='booked') }}"
+           class="px-3 py-1.5 rounded-full {% if status_filter == 'booked' %}bg-blue-600 text-white{% else %}bg-blue-50 text-blue-700{% endif %}">Vimebook</a>
+        <a href="{{ url_for('admin.rooms_list', status='archived') }}"
+           class="px-3 py-1.5 rounded-full {% if status_filter == 'archived' %}bg-slate-700 text-white{% else %}bg-slate-100 text-slate-600{% endif %}">Vimekamilika (Archived)</a>
+    </div>
+
+    {% if not rooms %}
+        <p class="text-slate-500 text-sm">Hakuna vyumba katika kundi hili.</p>
+    {% else %}
+        <div class="space-y-3">
+            {% for room in rooms %}
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="flex justify-between items-start gap-3">
+                    <div>
+                        <h3 class="font-semibold text-slate-800">{{ room.title }}</h3>
+                        <p class="text-xs text-slate-500">
+                            {{ room.area }} &middot; TZS {{ "{:,.0f}".format(room.price) }}
+                            {% if room.distance_to_college %} &middot; {{ room.distance_to_college }} dakika kutoka chuo{% endif %}
+                        </p>
+                        <p class="text-xs text-slate-500 mt-1">Mwenye nyumba: {{ room.owner_name or "Haijaandikwa" }} &middot; {{ room.contact_phone }}</p>
+                        {% if not room.owner_id %}
+                            <p class="text-[10px] text-amber-600 mt-0.5">{{ icon('user-shield') }} Kiliwekwa na admin (mwenye nyumba hana akaunti)</p>
+                        {% endif %}
+                    </div>
+                    <span class="text-xs px-3 py-1 rounded-full font-medium shrink-0
+                        {% if room.status == 'available' %}bg-emerald-100 text-emerald-700
+                        {% elif room.status == 'requested' %}bg-amber-100 text-amber-700
+                        {% elif room.status == 'booked' %}bg-blue-100 text-blue-700
+                        {% elif room.status == 'archived' %}bg-slate-700 text-white
+                        {% else %}bg-slate-100 text-slate-500{% endif %}">
+                        {{ room.status }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

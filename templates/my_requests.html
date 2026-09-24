@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Dashibodi Yangu | PangaSalama{% endblock %}
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-8">
+    <h1 class="text-xl font-bold text-slate-800 mb-1">Karibu, {{ current_user.full_name }} 👋</h1>
+    <p class="text-sm text-slate-500 mb-6">Hivi ndivyo maombi yako yanavyoendelea.</p>
+
+    <div class="grid grid-cols-2 gap-3 mb-6">
+        <div class="bg-white border border-slate-200 rounded-xl p-4 text-center">
+            <p class="text-xl font-bold text-slate-700">{{ stats.total }}</p>
+            <p class="text-xs text-slate-500 mt-1">Maombi</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-xl p-4 text-center">
+            <p class="text-xl font-bold text-amber-600">{{ stats.pending }}</p>
+            <p class="text-xs text-slate-500 mt-1">Yanayosubiri</p>
+        </div>
+    </div>
+
+    <h2 class="font-semibold text-slate-800 mb-4">Maombi ya Hivi Karibuni</h2>
+
+    {% if not requests %}
+        <div class="text-center py-16 bg-white border border-slate-200 rounded-xl">
+            {{ icon('inbox', 'text-4xl text-slate-300 mb-3') }}
+            <p class="text-slate-700 font-semibold mb-1">Bado hujafanya ombi lolote</p>
+            <a href="{{ url_for('main.browse') }}" class="text-brand-teal-dark text-sm font-semibold">Tazama Vyumba &rarr;</a>
+        </div>
+    {% else %}
+        <div class="space-y-4">
+            {% for r in requests %}
+            <div class="bg-white border border-slate-200 rounded-xl p-4">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        {% if r.request_type == 'room_request' and r.rooms %}
+                            <h3 class="font-semibold text-slate-800">{{ r.rooms.title }}</h3>
+                            <p class="text-xs text-slate-500">{{ r.rooms.area }} &middot; TZS {{ "{:,.0f}".format(r.rooms.price) }}</p>
+                        {% else %}
+                            <h3 class="font-semibold text-slate-800">Ombi Maalum: {{ r.desired_area }}</h3>
+                            <p class="text-xs text-slate-500">
+                                {% if r.desired_room_type %}{{ r.desired_room_type }} &middot; {% endif %}
+                                {% if r.desired_price %}hadi TZS {{ "{:,.0f}".format(r.desired_price) }}{% endif %}
+                            </p>
+                        {% endif %}
+                    </div>
+                    {% if r.status == 'cancelled' %}
+                    <span class="text-xs px-3 py-1 rounded-full font-medium bg-rose-100 text-rose-700 shrink-0">Imefutwa</span>
+                    {% endif %}
+                </div>
+
+                {% if r.timeline %}
+                <div class="space-y-0">
+                    {% for step in r.timeline %}
+                    <div class="flex items-start gap-3">
+                        <div class="flex flex-col items-center">
+                            <span class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0
+                                {% if step.state == 'done' %}bg-emerald-500 text-white
+                                {% elif step.state == 'current' %}bg-brand-amber text-white
+                                {% else %}bg-slate-200 text-slate-400{% endif %}">
+                                {% if step.state == 'done' %}{{ icon('check') }}{% else %}&nbsp;{% endif %}
+                            </span>
+                            {% if not loop.last %}
+                            <span class="w-0.5 h-6 {% if step.state == 'done' %}bg-emerald-500{% else %}bg-slate-200{% endif %}"></span>
+                            {% endif %}
+                        </div>
+                        <p class="text-sm pt-0.5 {% if step.state == 'upcoming' %}text-slate-400{% elif step.state == 'current' %}text-slate-800 font-semibold{% else %}text-slate-600{% endif %}">
+                            {{ step.label }}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if r.admin_notes %}
+                    <p class="text-xs text-slate-500 mt-3 border-t border-slate-100 pt-2">
+                        {{ icon('comment-dots') }} {{ r.admin_notes }}
+                    </p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

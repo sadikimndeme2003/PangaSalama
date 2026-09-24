@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}PangaSalama | Tafuta Chumba{% endblock %}
+{% block content %}
+
+<!-- HERO -->
+<section class="bg-brand-teal-dark text-white">
+    <div class="max-w-5xl mx-auto px-4 py-14 text-center">
+        <h1 class="text-3xl md:text-5xl font-bold leading-tight mb-4">
+            PangaSalama
+        </h1>
+        <p class="text-teal-100 max-w-xl mx-auto mb-2">
+            PangaSalama inakusaidia kutafuta na kupata chumba kizuri kwa haraka kwa kukuunganisha na vyumba halisi vilivyopo karibu na wewe.
+        </p>
+        <p class="text-teal-100 max-w-xl mx-auto mb-8">
+            Ambapo utaweza kupata chumba unachohitaji kwa kutafuta kwa eneo, bei na umbali, kisha tunakusaidia kukamilisha kila kitu kwa usalama, kupitia admin anayesimamia mchakato mzima.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-3">
+            <a href="{{ url_for('main.browse') }}" class="bg-brand-amber hover:bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold">
+                {{ icon('magnifying-glass') }} Tazama Vyumba
+            </a>
+            {% if current_user and current_user.role == 'owner' %}
+                <a href="{{ url_for('room.new_room') }}" class="bg-white text-brand-teal-dark px-6 py-3 rounded-lg font-semibold">
+                    {{ icon('plus') }} Weka Chumba Chako
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}" class="bg-white text-brand-teal-dark px-6 py-3 rounded-lg font-semibold">
+                    {{ icon('user-plus') }} Jisajili
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- KWA NINI CHUMBAESSAY -->
+<section class="max-w-4xl mx-auto px-4 py-16 text-center">
+    <p class="text-brand-amber text-xs font-semibold tracking-widest uppercase mb-2">Kwa Nini PangaSalama</p>
+    <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-10">Tofauti na Kutafuta Chumba Mtaani</h2>
+
+    <div class="space-y-8 text-left max-w-2xl mx-auto">
+        <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-full bg-teal-50 text-brand-teal-dark flex items-center justify-center shrink-0">
+                {{ icon('magnifying-glass-location') }}
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-800">Ugumu wa kupata taarifa sahihi</h3>
+                <p class="text-sm text-slate-500 mt-1">Badala ya kuzunguka mtaani kutafuta chumba, PangaSalama inakusaidia kutafuta vyumba kwa eneo, bei, aina na umbali kutoka chuo kwa sekunde chache.</p>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-full bg-teal-50 text-brand-teal-dark flex items-center justify-center shrink-0">
+                {{ icon('user-shield') }}
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-800">Hatari ya kudanganywa</h3>
+                <p class="text-sm text-slate-500 mt-1">Admin anasimamia kila ombi na kukuunganisha na mwenye nyumba mwenyewe kabla ya malipo yoyote kufanyika.</p>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-full bg-teal-50 text-brand-teal-dark flex items-center justify-center shrink-0">
+                {{ icon('video') }}
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-800">Kukosa uhakika wa chumba halisi</h3>
+                <p class="text-sm text-slate-500 mt-1">Kila tangazo lina picha na video za kweli za chumba, hivyo unajua na kuchagua chumba unachokitaka kabla hujafika na kukupunguzia uzururaji bila mafanikio.</p>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <div class="w-10 h-10 rounded-full bg-teal-50 text-brand-teal-dark flex items-center justify-center shrink-0">
+                {{ icon('comments') }}
+            </div>
+            <div>
+                <h3 class="font-semibold text-slate-800">Hakuna chumba kinachokufaa?</h3>
+                <p class="text-sm text-slate-500 mt-1">Ikiwa hakuna chumba kinachokufaa au unahitaji chumba maalumu zaidi, unaweza kujaza fomu ya maombi maalum, nasi tutakutafutia.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- JINSI INAVYOFANYA KAZI -->
+<section class="bg-slate-50 py-16 border-t border-slate-100">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+        <p class="text-brand-amber text-xs font-semibold tracking-widest uppercase mb-2">Mchakato</p>
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-10">Jinsi Inavyofanya Kazi</h2>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
+            <div class="bg-white border border-slate-200 rounded-xl p-5">
+                <span class="text-brand-amber font-bold text-2xl">1</span>
+                <h3 class="font-semibold text-slate-800 mt-2 mb-1">Tafuta na Chagua</h3>
+                <p class="text-sm text-slate-500">Tafuta chumba unachokipenda kwa kubofya "Tazama Vyumba" -- hapo utaona orodha ya vyumba vyote, unachagua kwa kutafuta eneo, bei, umbali na aina.</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-5">
+                <span class="text-brand-amber font-bold text-2xl">2</span>
+                <h3 class="font-semibold text-slate-800 mt-2 mb-1">Tuma Ombi</h3>
+                <p class="text-sm text-slate-500">Baada ya kupata chumba unachokipenda au unachokitaka, bonyeza "Omba Chumba Hiki" kwa hatua moja tu na kutuma ombi lako. Ada ya huduma ni TZS 15,000 kwa kila ombi, inalipwa na wewe (mteja).</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-5">
+                <span class="text-brand-amber font-bold text-2xl">3</span>
+                <h3 class="font-semibold text-slate-800 mt-2 mb-1">Tunakuunganisha</h3>
+                <p class="text-sm text-slate-500">Ukisha tuma ombi lako, tutawasiliana na wewe na kukuunganisha moja kwa moja na mwenye nyumba.</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-xl p-5">
+                <span class="text-brand-amber font-bold text-2xl">4</span>
+                <h3 class="font-semibold text-slate-800 mt-2 mb-1">Lipa kwa Usalama</h3>
+                <p class="text-sm text-slate-500">Baada ya kufika kwa mwenye nyumba, fanya malipo kwa usalama na uhakika, naye atakukabidhi chumba.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA YA MWISHO -->
+<section class="bg-slate-900 text-white py-14">
+    <div class="max-w-2xl mx-auto px-4 text-center">
+        <h2 class="text-2xl md:text-3xl font-bold mb-3">Je, Upo Tayari Kupata Chumba Chako?</h2>
+        <p class="text-slate-300 mb-6">Anza kuvinjari vyumba vilivyopo karibu na wewe na kuchagua unachokipenda.</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-3">
+            <a href="{{ url_for('main.browse') }}" class="bg-brand-amber hover:bg-amber-600 text-white px-6 py-3 rounded-lg font-semibold">
+                Tazama Vyumba
+            </a>
+            {% if not current_user %}
+            <a href="{{ url_for('auth.register') }}" class="border border-white text-white px-6 py-3 rounded-lg font-semibold">
+                Jisajili Sasa
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+{% endblock %}

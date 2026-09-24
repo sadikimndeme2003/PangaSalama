@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}{{ room.title }} | PangaSalama{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-6">
+
+    <a href="{{ url_for('main.browse') }}" class="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-brand-teal-dark mb-4">
+        {{ icon('arrow-left') }} Rudi kwenye vyumba
+    </a>
+
+    {% set all_media = room.images + room.videos %}
+    {% if all_media %}
+    <div class="mb-6">
+        <div id="main-viewer" class="w-full h-64 sm:h-96 bg-slate-900 rounded-xl overflow-hidden flex items-center justify-center">
+            {% if room.images %}
+                <img id="main-viewer-img" src="{{ room.images[0].display_url }}" class="w-full h-full object-contain" loading="eager">
+                <video id="main-viewer-video" class="w-full h-full hidden" controls preload="none"></video>
+            {% else %}
+                <img id="main-viewer-img" class="w-full h-full object-contain hidden">
+                <video id="main-viewer-video" class="w-full h-full" controls preload="none">
+                    <source src="{{ room.videos[0].url }}" type="video/mp4">
+                </video>
+            {% endif %}
+        </div>
+        {% if all_media|length > 1 %}
+        <div class="flex gap-2 mt-2 overflow-x-auto pb-1">
+            {% for img in room.images %}
+            <button type="button" class="thumb-btn shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 {% if loop.first %}border-brand-teal{% else %}border-transparent{% endif %}" data-type="image" data-url="{{ img.display_url }}">
+                <img src="{{ img.micro_url }}" class="w-full h-full object-cover" loading="lazy">
+            </button>
+            {% endfor %}
+            {% for vid in room.videos %}
+            <button type="button" class="thumb-btn relative shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 {% if not room.images and loop.first %}border-brand-teal{% else %}border-transparent{% endif %} bg-slate-800" data-type="video" data-url="{{ vid.url }}">
+                <span class="absolute inset-0 flex items-center justify-center text-white">{{ icon('play') }}</span>
+            </button>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="w-full h-48 bg-slate-100 rounded-xl flex items-center justify-center mb-6 text-slate-300">
+        {{ icon('image', 'text-4xl') }}
+    </div>
+    {% endif %}
+
+    <div class="bg-white border border-slate-200 rounded-xl p-6">
+        <div class="flex justify-between items-start gap-2 mb-1">
+            <h1 class="text-xl font-bold text-slate-800">{{ room.title }}</h1>
+        </div>
+
+        <p class="text-sm text-slate-500 mb-1">
+            {{ icon('location-dot') }} {{ room.area }}
+            &middot; <span class="capitalize">{{ room.room_type }}</span>
+        </p>
+        {% if room.distance_to_college %}
+        <p class="text-sm text-slate-500 mb-4">
+            {{ icon('person-walking') }} {{ room.distance_to_college }} dakika kutoka chuo
+        </p>
+        {% endif %}
+
+        <p class="text-2xl font-bold text-brand-teal-dark mb-4">TZS {{ "{:,.0f}".format(room.price) }} <span class="text-sm font-normal text-slate-400">/ mwezi</span></p>
+
+        {% if room.amenities %}
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
+            {% for key in room.amenities %}
+                {% set a = AMENITY_MAP.get(key) %}
+                {% if a %}
+                <span class="flex items-center gap-2 text-sm text-slate-700 bg-slate-50 rounded-lg px-3 py-2">
+                    {{ icon('check', 'text-emerald-600') }}
+                    {{ icon(a.icon, 'text-slate-400') }} {{ a.label }}
+                </span>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if room.features %}
+        <div class="mb-4">
+            <h3 class="text-sm font-semibold text-slate-700 mb-1">Maelezo mengine</h3>
+            <p class="text-sm text-slate-600">{{ room.features }}</p>
+        </div>
+        {% endif %}
+
+        {% if room.extra_directions %}
+        <div class="mb-4">
+            <h3 class="text-sm font-semibold text-slate-700 mb-1">Maelekezo ya kufika</h3>
+            <p class="text-sm text-slate-600">{{ room.extra_directions }}</p>
+        </div>
+        {% endif %}
+
+        <div class="border-t border-slate-100 pt-4 mt-4">
+            {% if room.status == 'requested' %}
+                {% if current_user and (current_user.role == 'admin' or current_user.id == room.owner_id) %}
+                    <p class="text-sm text-amber-600 font-medium mb-3">{{ icon('clock') }} Chumba hiki kimeshaombwa na mteja.</p>
+                {% elif current_user and current_user.id == room.requested_by_client_id %}
+                    <p class="text-sm text-amber-600 font-medium mb-3">{{ icon('clock') }} Umekwisha omba chumba hiki tayari.</p>
+                {% else %}
+                    <p class="text-sm text-amber-600 font-medium mb-3">{{ icon('clock') }} Chumba hiki tayari kimeombwa na mteja mwingine.</p>
+                {% endif %}
+            {% elif room.status == 'pending_payment' %}
+                <p class="text-sm text-amber-600 font-medium mb-3">{{ icon('money-bill-wave') }} Malipo ya chumba hiki yanaendelea.</p>
+            {% elif room.status == 'booked' %}
+                <p class="text-sm text-blue-600 font-medium mb-3">{{ icon('circle-check') }} Chumba hiki kimeshabook.</p>
+            {% endif %}
+
+            {% if room.whatsapp_url or room.tel_url %}
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                {% if room.tel_url %}
+                <a href="{{ room.tel_url }}" class="flex items-center justify-center gap-2 border border-slate-200 rounded-lg py-2.5 text-sm font-semibold text-slate-700">
+                    {{ icon('phone') }} Piga Simu
+                </a>
+                {% endif %}
+                {% if room.whatsapp_url %}
+                <a href="{{ room.whatsapp_url }}" target="_blank" rel="noopener" class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg py-2.5 text-sm font-semibold">
+                    {{ icon('whatsapp') }} WhatsApp
+                </a>
+                {% endif %}
+            </div>
+            <p class="text-xs text-slate-400 text-center mb-3">Vitufe hivi vinakupeleka kwa msimamizi (admin), siyo mwenye nyumba moja kwa moja.</p>
+            {% endif %}
+
+            {% if current_user and current_user.role == 'client' and room.status == 'available' %}
+                <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3 text-xs text-amber-800 flex items-start gap-2">
+                    {{ icon('money-bill-wave', 'mt-0.5 shrink-0') }}
+                    <span>Ada ya huduma ya ombi hili ni <strong>TZS 15,000</strong>, inalipwa na mteja (wewe) -- si mwenye nyumba.</span>
+                </div>
+                <form method="post" action="{{ url_for('request.request_room', room_id=room.id) }}"
+                      onsubmit="this.querySelector('button').disabled = true; this.querySelector('button').textContent = 'Inatuma...';">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="w-full bg-brand-amber hover:bg-amber-600 text-white rounded-lg py-2.5 font-semibold">
+                        Omba Chumba Hiki
+                    </button>
+                </form>
+                <p class="text-xs text-slate-400 mt-2 text-center">
+                    Baada ya kuomba, msimamizi (admin) atakuunganisha na mwenye chumba.
+                </p>
+            {% elif not current_user %}
+                <a href="{{ url_for('auth.login', next=request.path) }}" class="block text-center w-full bg-brand-teal hover:bg-brand-teal-dark text-white rounded-lg py-2.5 font-semibold">
+                    Ingia ili Uombe Chumba
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const thumbs = document.querySelectorAll('.thumb-btn');
+    if (!thumbs.length) return;
+
+    const imgEl = document.getElementById('main-viewer-img');
+    const videoEl = document.getElementById('main-viewer-video');
+
+    thumbs.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const type = btn.dataset.type;
+            const url = btn.dataset.url;
+
+            thumbs.forEach(function (b) { b.classList.remove('border-brand-teal'); b.classList.add('border-transparent'); });
+            btn.classList.add('border-brand-teal');
+            btn.classList.remove('border-transparent');
+
+            if (type === 'image') {
+                imgEl.src = url;
+                imgEl.classList.remove('hidden');
+                videoEl.pause();
+                videoEl.classList.add('hidden');
+            } else {
+                videoEl.querySelector('source') ? (videoEl.querySelector('source').src = url) : null;
+                videoEl.src = url;
+                videoEl.classList.remove('hidden');
+                imgEl.classList.add('hidden');
+            }
+        });
+    });
+})();
+</script>
+{% endblock %}

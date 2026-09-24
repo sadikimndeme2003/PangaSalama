@@ -1,0 +1,49 @@
+{% macro room_card(room) %}
+<a href="{{ url_for('main.room_detail', room_id=room.id) }}" class="group bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow flex flex-col">
+    <div class="relative h-40 bg-slate-100 shrink-0">
+        {% if room.thumbnail %}
+            <img src="{{ room.thumbnail }}" class="w-full h-full object-cover" alt="{{ room.title }}" loading="lazy">
+        {% else %}
+            <div class="w-full h-full flex items-center justify-center">
+                {{ icon('image', 'text-3xl text-slate-300') }}
+            </div>
+        {% endif %}
+        <span class="absolute top-2 left-2 bg-white/90 backdrop-blur text-slate-700 text-[11px] font-semibold px-2 py-1 rounded-full capitalize">
+            {{ icon('house') }} {{ room.room_type }}
+        </span>
+        {% if room.status and room.status != 'available' %}
+        <span class="absolute top-2 right-2 bg-slate-900/85 text-white text-[10px] font-semibold px-2 py-1 rounded-full capitalize">
+            {{ room.status }}
+        </span>
+        {% endif %}
+    </div>
+    <div class="p-4 flex flex-col flex-grow">
+        <h3 class="font-semibold text-slate-800 truncate mb-2">{{ room.title }}</h3>
+
+        <div class="space-y-1 mb-3 text-sm text-slate-600">
+            <p>{{ icon('location-dot', 'text-brand-teal-dark') }} {{ room.area }}</p>
+            <p class="capitalize">{{ icon('house', 'text-brand-teal-dark') }} {{ room.room_type }}</p>
+            <p class="font-bold text-brand-teal-dark">{{ icon('money-bill-wave', 'text-brand-teal-dark') }} TZS {{ "{:,.0f}".format(room.price) }} / mwezi</p>
+        </div>
+
+        {% if room.amenities %}
+        <div class="space-y-1 mb-3 text-xs text-slate-500 border-t border-slate-100 pt-2">
+            {% for key in room.amenities %}
+                {% set a = AMENITY_MAP.get(key) %}
+                {% if a %}
+                    <p>{{ icon('check', 'text-emerald-600') }} Kina {{ a.label }}</p>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if room.distance_to_college %}
+        <p class="text-xs text-slate-400 mb-3">{{ icon('person-walking') }} {{ room.distance_to_college }} dakika kutoka chuo</p>
+        {% endif %}
+
+        <span class="mt-auto inline-block text-center bg-slate-800 group-hover:bg-brand-teal-dark text-white text-sm font-semibold rounded-lg py-2">
+            Angalia Chumba
+        </span>
+    </div>
+</a>
+{% endmacro %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Ingia | PangaSalama{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-12">
+    <h1 class="text-xl font-bold text-slate-800 mb-6 text-center">Ingia kwenye Akaunti</h1>
+    <form method="post" class="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div>
+            <label class="text-sm text-slate-600">Barua pepe</label>
+            <input type="email" name="email" required class="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1">
+        </div>
+        <div>
+            <label class="text-sm text-slate-600">Nenosiri</label>
+            <input type="password" name="password" required class="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1">
+            <a href="{{ url_for('auth.forgot_password') }}" class="text-xs text-brand-teal-dark mt-1 inline-block">Umesahau Nenosiri?</a>
+        </div>
+        <button type="submit" class="w-full bg-brand-teal hover:bg-brand-teal-dark text-white rounded-lg py-2.5 font-semibold">Ingia</button>
+        <p class="text-center text-sm text-slate-500">Huna akaunti? <a href="{{ url_for('auth.register') }}" class="text-brand-teal-dark font-semibold">Jisajili</a></p>
+    </form>
+</div>
+{% endblock %}

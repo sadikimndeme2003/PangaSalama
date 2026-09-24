@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Omba Chumba Maalum | PangaSalama{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-10">
+    <h1 class="text-xl font-bold text-slate-800 mb-2">Omba Chumba Maalum</h1>
+    <p class="text-sm text-slate-500 mb-6">Kama hakuna chumba kinachokufaa, jaza fomu hii na tutakutafutia.</p>
+
+    <form method="post" class="bg-white border border-slate-200 rounded-xl p-6 space-y-4">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div>
+            <label class="text-sm text-slate-600">Eneo unalotaka</label>
+            <select name="desired_area" required class="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1">
+                <option value="">-- Chagua eneo --</option>
+                {% for ar in areas %}
+                    <option value="{{ ar }}">{{ ar }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label class="text-sm text-slate-600">Umbali unaokubali kutoka chuo (dakika)</label>
+            <input type="number" step="1" min="0" name="desired_distance" placeholder="mfano: 15" class="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1">
+        </div>
+        <div>
+            <label class="text-sm text-slate-600">Aina ya chumba</label>
+            <select name="desired_room_type" class="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1">
+                <option value="">Haijalishi</option>
+                <option value="single">Single</option>
+                <option value="shared">Shared</option>
+                <option value="self-contained">Self-contained</option>
+                <option value="bed-sitter">Bed-sitter</option>
+            </select>
+        </div>
+        <div>
+            <label class="text-sm text-slate-600">Bei unayoweza (upeo, TZS)</label>
+            <input type="number" name="desired_price" class="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1">
+        </div>
+        <div>
+            <label class="text-sm text-slate-600">Maelezo ya ziada</label>
+            <textarea name="notes" rows="3" class="w-full border border-slate-200 rounded-lg px-3 py-2 mt-1"></textarea>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs text-amber-800 flex items-start gap-2">
+            {{ icon('money-bill-wave', 'mt-0.5 shrink-0') }}
+            <span>Ada ya huduma ya ombi hili ni <strong>TZS 15,000</strong>, inalipwa na mteja (wewe) -- si mwenye nyumba.</span>
+        </div>
+
+        <button type="submit" class="w-full bg-brand-teal hover:bg-brand-teal-dark text-white rounded-lg py-2.5 font-semibold">
+            Tuma Ombi
+        </button>
+    </form>
+</div>
+{% endblock %}

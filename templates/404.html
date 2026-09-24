@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Haipo | PangaSalama{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto px-4 py-20 text-center">
+    {{ icon('triangle-exclamation', 'text-4xl text-amber-400 mb-4') }}
+    <p class="text-slate-600 mb-6">Ukurasa au chumba ulichokitafuta hakipo.</p>
+    <a href="{{ url_for('main.browse') }}" class="text-brand-teal-dark font-semibold">Tazama Vyumba</a>
+</div>
+{% endblock %}
